@@ -1,0 +1,293 @@
+
+=================================================================
+Requirements
+1. The GILDAS package
+2. The class file containing a single spectrum (single_spec.class)
+3. The class file containing multiple spectra (multi_spec.class)
+=================================================================
+
+
+#######################
+### Adjust the plot ###
+#######################
+
+#1. Open the class file and pot the spectrum in veloicty space
+    LAS> file in single_spec.class
+    LAS> find
+    LAS> get first
+    LAS> set unit v f
+    LAS> pl
+
+#2. Change the range of x-axis
+#2-1. Useing the mouse cursor
+    LAS> set mode x
+    ----------output-------------------------------
+     Type any char to set X lower and upper limits
+    -----------------------------------------------
+    You can see the crosshair on the GREG window
+    Click to set the minimum value (val1) of the x-axis (the first click)
+    ----------output----
+      X1 =      val1
+    --------------------
+    Click to set the maximum value (val2) of the x-axis (the second click)
+    ----------output----
+      X2 =      val2
+    --------------------
+    If you want to stop the process, press 'e'
+#2-2. Useing the Keyboard
+    LAS> set mode x val1 val2
+    note: The 'val1' and 'val2' are the minimum and maximum values 
+          of the x-axis, respectively.
+    ----------output----------
+    no output 
+    --------------------------
+
+#3. plot the adjusted spectrum
+    LAS> pl
+    ----------output---------------------------------------------------
+    The GREG window would present the spectrum with the adjusted x-axis
+    -------------------------------------------------------------------
+
+#Note1. The range of y-axis can be adjusted using 'set mode y' command
+#Note2. If you did not change the unit of the diagram, x-axis is in frequency.
+
+
+
+#############################################################
+### Smooth the spectrum and estimate the peak temperature ###
+#############################################################
+note1: the smoothing process is based on the hanning smoothing.
+note2: the smoothing process results in decrease of the channel number (half).
+#1. Open and plot the spectrum.
+    LAS> file in single_spec.class
+    LAS> find
+    LAS> get first
+    LAS> set unit v f
+    LAS> pl
+
+#2. Perform smoothing spectrum to reduce the noisy feature
+    LAS> sm
+    ----------output----
+    no output
+    --------------------
+
+#3. Plot the smoothed spectrum
+    LAS> pl
+    ----------output------------------------------------
+    The GREG window would present the smoothed spectrum
+    ----------------------------------------------------
+
+#4. Estimate the data value for a given position
+    LAS> draw
+    ----------output----
+    no output
+    --------------------
+    You can see the crosshair on the GREG window
+    Click a position where you want to check the data value
+    ----------output----------------------------------
+        Channel number      : 1168.28
+        Velocity            :  -6.3075     km/s
+        Rest Frequency      :   86247.8449312     MHz
+        Image Frequency     : N/A
+        Offset Frequency    :   4.4029     MHz
+        Antenna Temperature :   9.6017     K
+    --------------------------------------------------
+note: the estimated values are for the position where you clicked on the GREG window. 
+      In order to estimate the peak temperature of the line, you should click that peak position.
+
+
+
+#######################
+### Remove baseline ###
+#######################
+note: The baseline is the noise signal without the emission line feature.
+      The baseline fitting aims to arrange the zeropoint of the spectrum.
+      Therefore, we should exclude the emission lines from the fitting process.
+
+#1. Open and plot the spcetrum.
+    LAS> file in single_spec.class
+    LAS> find
+    LAS> get first
+    LAS> set unit v f
+    LAS> pl
+
+#2. Define an window
+    note: the window is the spectral range, which contains the emission line.
+#2-1. Set the window using mouse cursor
+    LAS> set window
+    ----------output----
+    no output
+    --------------------
+    You can see the crosshair on the GREG window
+    Click to set the minimum value (val1) of the window (the first click)
+    ----------output----------
+      WINDOW #1 (low) : val1
+    --------------------------
+    Click to set the maximum value (val2) of the window (the second click)
+    ----------output----------
+      WINDOW #1 (up ) : val2
+    --------------------------
+    You can define multiple windows via clicking more.
+    If you click to set the other window (val3 and val4), you can see the following outputs
+    ----------output----------
+      WINDOW #2 (low) : val3
+      WINDOW #2 (up ) : val4
+    --------------------------
+    press 'e' to exit the process
+    ----------output----
+    no output
+    --------------------
+#2.2. Set the window using keyboard
+    LAS> set window val1 val2
+    ----------output----
+    no output
+    --------------------
+    note: is you want to set multiple windows, use following command
+    LAS> set window val1 val2 val3 val4 
+    ----------output----
+    no output
+    --------------------
+
+#3. Check the window position
+    LAS> draw win
+    ----------output--------------------------------------------------
+    the GREG window would show the windows in the bottom of the panel
+    ------------------------------------------------------------------
+
+#4. Fit the baseline and remove from the spectrum
+    LAS> base order /plot
+    note1: the 'order' should be integer, which is the order of a polynomial.
+    note2: remove '/plot' option to omit the plotting process of the baseline
+    ----------output----------------------------------------------------
+    the GREG window would present the fitted baseline in red solid line
+    the GREG window do not present the spectrum afther the subtraction of the baseline.
+    However, the baseline is subtracted and stored in a memory.
+    --------------------------------------------------------------------
+    
+#5. Plot the baseline-subtracted spectrum
+    LAS> pl
+    ----------output-----------------------------------------------
+    The GREG window would present the baseline-subtracted spectrum
+    ---------------------------------------------------------------
+
+
+
+#########################################################
+### find multiple spectra and derive average spectrum ###
+#########################################################
+note1: The Class file can contain multiple spectra. 
+       This guide describes how to find the spectra that you are interested in.
+       In real situation, you would need the observation log to find the data 
+note2: The following codes and results are for a specific case with the TRAO telescope 
+note3: The example output would be diffeent depending on the data file that you opened.
+
+#1. Open the data file and find the spectra
+    LAS> file in multi_spec.class
+    LAS> find
+    ----------output----------------
+    I-FIND,  num observations found
+    --------------------------------
+    note: the 'num' is an integer, which is the number of spectra within the data file
+
+#2. Check the information of the spectra
+    LAS> list 
+    ----------output--------------------------------------------------------------
+    N;V     Source       Line         Telescope      Lambda     Beta Sys  Sca Sub
+    26679;2 ORI_S+03-06  LO2          TRAO14M          +0.0     +0.0 Eq  2234 11
+    26680;2 ORI_S+03-06  LO2          TRAO14M         -64.7    -60.9 Eq  2234 15
+    26681;2 ORI_S+03-06  LO2          TRAO14M        +190.3    +57.1 Eq  2234 2
+    26682;2 ORI_S+03-06  LO2          TRAO14M        +125.6     -3.8 Eq  2234 6
+    26683;2 ORI_S+03-06  LO2          TRAO14M         +60.9    -64.7 Eq  2234 10
+    26684;2 ORI_S+03-06  LO2          TRAO14M          -3.8   -125.6 Eq  2234 14
+    ...     ...          ...          ...               ...      ... ..  ...  ..
+    ------------------------------------------------------------------------------
+    note: the frist line presents the name of the information of the spectra
+
+#3. find several (not all) spectra using the information
+    LAS> find /scan 2234 /line lo1 /sub 1
+    note: the command would find the spectra which has the scan number of '2234', 
+          the line of 'lo1', and the sub of '1'
+    -----------output------------
+    I-FIND,  1 observation found
+    -----------------------------
+    LAS> find /scan 2234 2235 /line lo2
+    note: the command would find the spectra which has the scan numbers between 2234 and 2235 
+          and the line of 'lo2'. the found data would contain all 16 horns (defined as /sub).
+    -----------output--------------
+    I-FIND,  16 observations found
+    -------------------------------
+    If there is no spectrum that satisfies the given information, the output would be as follows
+    -----------output------
+    W-FIND,  Nothing found
+    -----------------------
+
+#4. Derive the average spectrum
+    LAS> average
+    ----------output------------------------------------------------------------------
+    Consistency checks:
+      Checking Data type and regular x-axis sampling
+      Checking Source Name
+      Checking Position information
+      Checking Offset position
+      Checking Line Name
+      Checking Spectroscopic information
+      Checking Calibration information
+      Checking Switching information
+    Reference spectrum:
+      Source Name       : Ori_S+03-06
+      Coordinate System : EQUATORIAL  2000.0
+      Proj. Center (rad): lambda     1.462743, beta    -0.093770, tolerance 4.8E-08
+      Line Name         : LO2
+      Frequency (MHz)   : rest   89.189E+03, resol     1.526E-02, offset     0.000E+00
+      Velocity (km/s)   : resol   -5.130E-02, offset    9.000E+00
+      Alignment (chan)  : tolerance    10.0%
+    W-CONSISTENCY,  Obs #26674 differs. Inconsistent:
+    W-CONSISTENCY,  Position offsets are not compatible
+    E-AVERAGE,  Index is inconsistent
+    ----------------------------------------------------------------------------------
+    note: this command may not work. Basically, the average command check the information of spectra,
+          such as the source name, line, posotion, velocity, and else. If the information of spectra
+          are different, the average command is not working.
+    In order to omit the checking process, use the following command
+    LAS> average /nocheck
+    ----------output------------------------------------------------------------------
+    Consistency checks:
+      Checking Data type and regular x-axis sampling
+      Leaving  Source Name
+      Leaving  Position information
+      Leaving  Offset position
+      Leaving  Line Name
+      Checking Spectroscopic information
+      Leaving  Calibration information
+      Leaving  Switching information
+    Reference spectrum:
+      Source Name       : Ori_S+03-06
+      Coordinate System : EQUATORIAL  2000.0
+      Proj. Center (rad): lambda     1.462743, beta    -0.093770, tolerance 4.8E-08
+      Line Name         : LO2
+      Frequency (MHz)   : rest   89.189E+03, resol     1.526E-02, offset     0.000E+00
+      Velocity (km/s)   : resol   -5.130E-02, offset    9.000E+00
+      Alignment (chan)  : tolerance    10.0%
+    Channel alignment, no resampling:
+    - Input axes:
+        Doppler:   0.0000
+    - Output axis:
+        Nchan: 4096
+        Rchan: 2048.000
+        Restf: 89188.518 MHz
+        Image: .000 MHz
+        Fres: .015259 MHz
+        Doppler:   0.0000
+        Voff: 9.000 km/s
+        Vres: -.051298 km/s
+    ----------------------------------------------------------------------------------
+
+#5. Plot the average spectrum
+    LAS> pl
+    ----------output--------------------------------
+    the GREG window would show the average spectrum
+    ------------------------------------------------
+     
+
+
+
